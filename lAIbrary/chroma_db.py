@@ -1,6 +1,5 @@
 import chromadb
 from chromadb.config import Settings
-from chromadb.utils import Vector
 
 # Initialize the Chroma DB client
 client = chromadb.Client(Settings())
@@ -9,9 +8,9 @@ def create_collection(collection_name):
     global client
     return client.get_or_create_collection(collection_name)
 
-def insert_vector(collection, vector, metadata):
+def insert_vector(collection, document, metadata):
     global client
-    collection.insert(vector, metadata)
+    collection.insert(document, metadata)
 
 def read_vectors(collection, query):
     global client

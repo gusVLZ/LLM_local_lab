@@ -2,7 +2,7 @@ from chroma_db import *
 import time
 import threading
 import uuid
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
@@ -12,6 +12,10 @@ socketio = SocketIO(app)
 # In-memory storage for messages and client UUIDs
 messages = []
 client_uuids = {}
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/post_message', methods=['POST'])
 def post_message():
@@ -36,6 +40,9 @@ def serve_index():
 def serve_files(file):
     return send_from_directory('templates', file)
 
+@socketio.event
+def my_event(message):
+    emit('my response', {'data': 'got it!'})
 
 @socketio.on('connect')
 def handle_connect():
@@ -61,4 +68,5 @@ def send_uuid_to_clients():
 if __name__ == '__main__':
     # Start the background task
     socketio.start_background_task(send_uuid_to_clients)
-    socketio.run(app, debug=True)
+    socketio.run(app, host="0.0.0.0", debug=True)
+
