@@ -2,26 +2,34 @@ import chromadb
 from chromadb.config import Settings
 
 # Initialize the Chroma DB client
-client = chromadb.Client(Settings())
+client = chromadb.PersistentClient(path="./db_data")
 
-def create_collection(collection_name):
-    global client
-    return client.get_or_create_collection(collection_name)
+collection = client.get_or_create_collection("historia")
 
-def insert_vector(collection, document, metadata):
+def change_collection(collection_name):
     global client
-    collection.insert(document, metadata)
+    global collection
+    collection = client.get_or_create_collection(collection_name)
+    return True
 
-def read_vectors(collection, query):
+def batch_insert(ids, document, metadata):
     global client
+    global collection
+    collection.add(ids=ids, documents=document, metadatas=metadata)
+
+def read(query):
+    global client
+    global collection
     return collection.query(query)
 
-def update_vector(collection, query, updated_vector):
+def update(query, updated_vector):
     global client
+    global collection
     collection.update(query, updated_vector)
 
-def delete_vector(collection, query):
+def delete(query):
     global client
+    global collection
     collection.delete(query)
 
 def delete_collection(collection_name):

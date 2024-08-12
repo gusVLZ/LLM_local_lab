@@ -52,22 +52,50 @@
 <html>
 <head>
     <title>Flask-SocketIO Test</title>
+    <style>
+        #chat {
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #message {
+            width: 300px;
+        }
+    </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script type="text/javascript" charset="utf-8">
+        var socket
         document.addEventListener('DOMContentLoaded', (event) => {
-            var socket = io();
+            socket = io();
             socket.on('connect', function() {
-                socket.send('User has connected!');
+                console.log("Connected to socket")
             });
             socket.on('message', function(msg) {
-                var p = document.createElement('p');
+                var p = document.createElement('span');
                 p.innerHTML = msg;
-                document.body.appendChild(p);
+                chat.appendChild(p);
+
+                chat.scrollTop = chat.scrollHeight;
             });
         });
+
+        function sendMessage(){
+            socket.send(message.value)
+            
+            var p = document.createElement('p');
+            p.innerHTML = message.value;
+            chat.appendChild(p);
+
+            message.value=""
+        }
     </script>
 </head>
 <body>
     <h1>Flask-SocketIO Test</h1>
+    <div id="chat"></div>
+    <input type="text" id="message" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
 </body>
 </html>

@@ -25,6 +25,7 @@ def faustao_response(prompt):
 
     stream = client.chat(
         model='mistral',
+    
         messages=messages_input,
         stream=True,
     )
