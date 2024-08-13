@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit
 
 from extract_pdf_text import extract_text_from_pdf
-from llm import llm_response
+from llm import filter_documents, llm_response
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -63,10 +63,24 @@ def handle_disconnect():
 @socketio.on('message')
 def handle_message(message):
     print(request.sid, message)
-    llm_stream = llm_response(message)
-    for chunk in llm_stream:
-        token = chunk['message']['content']
-        socketio.emit('message', token, room=request.sid)
+    documents = read(message, 15)
+    print(documents)
+    filtered = filter_documents(message, documents["documents"][0])
+    print(filtered)
+    if len(filtered)>0:
+        llm_stream = llm_response(message, filtered)
+        for chunk in llm_stream:
+            token = chunk['message']['content']
+            socketio.emit('message', token, room=request.sid)
+    else:
+        socketio.emit('message', "Não tenho informações para responder essa pergunta", room=request.sid)
+
+        
+@socketio.on('dbQuery')
+def handle_message(message):
+    print(request.sid, message)
+    dbData = read(message, 10)
+    socketio.emit('dbResponse', dbData, room=request.sid)
 
 def send_uuid_to_clients():
     while True:

@@ -1,5 +1,5 @@
 import json
-import fitz  # PyMuPDF
+import pymupdf  # PyMuPDF
 import re
 
 from chroma_db import batch_insert
@@ -12,7 +12,7 @@ def split_text(text, delimiters):
 
 def extract_text_from_pdf(pdf_path):
     # Open the PDF file
-    document = fitz.open(pdf_path)
+    document = pymupdf.open(pdf_path)
     
     paragraphs = []
     meta = []
@@ -22,8 +22,8 @@ def extract_text_from_pdf(pdf_path):
     for page_num in range(len(document)):
         localMeta = []
         localIds = []
-        if(page_num<9 or page_num>262):
-            continue
+        # if(page_num<9 or page_num>262):
+        #     continue
         page = document.load_page(page_num)
         text = page.get_text("text")
         
@@ -33,12 +33,12 @@ def extract_text_from_pdf(pdf_path):
 
         for i, p in enumerate(page_paragraphs):
             localMeta.append({
-                "title": "História Medieval",
+                "title": "universidades",
                 "page": page_num,
                 "paragraph": i,
                 "subject": "history"
             })
-            localIds.append(f"historiaMedieval:{page_num}:{i}")
+            localIds.append(f"universidades:{page_num}:{i}")
 
 
         paragraphs.extend(page_paragraphs)
@@ -63,10 +63,13 @@ def extract_text_from_pdf(pdf_path):
     return paragraphs, meta, ids
 
 def insert_paragraphs_to_db():
-    pdf_path = 'raw_data/medieval.pdf'
+    pdf_path = 'raw_data/universidades.pdf'
     print(pdf_path)
     paragraphs, meta, ids = extract_text_from_pdf(pdf_path)
 
     print("before insert")
     batch_insert(ids, paragraphs, meta)
     print("inserted, hopefully")
+
+if __name__ == "__main__":
+    insert_paragraphs_to_db()
