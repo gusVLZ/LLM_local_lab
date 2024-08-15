@@ -25,7 +25,6 @@ def filter_documents(prompt, documents):
 
         if "yes" in response["message"]["content"].lower():
             filtered_documents.append(d)
-        
     return filtered_documents
 
 
